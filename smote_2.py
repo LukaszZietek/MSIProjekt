@@ -84,7 +84,7 @@ class OwnSMOTE:
             #self.x_miniority_set, self.y_miniority_set = self._randomize()
             self.T = (self.amount / 100) * self.T
             self.amount = 100
-        self.amount=int(self.amount/100)+1
+        self.amount= int(self.amount/100)+1
 
         self.neighbors = NearestNeighbors(n_neighbors=self.k_neighbors).fit(self.x_miniority_set)
 
@@ -96,27 +96,36 @@ class OwnSMOTE:
         print(len(self.synthetic))
         self.klasa_mniejszosciowa=self.synthetic
         print(Counter(y_samples)[1])
-        for x in range(len(self.klasa_mniejszosciowa)-Counter(y_samples)[1]):
+        for x in range(len(self.klasa_mniejszosciowa) - Counter(y_samples)[1]):
             self.klasa_mniejszosciowa.pop()
 
         # summarize class distribution
         counter = Counter(y_samples)
         # pobranie probek klasy wiekszosciowej
-        for label, _ in counter.items():
-            row_ix = where(y_samples == 1)[0]
-            X_0, y_0 = (X[row_ix, 0], X[row_ix, 1])
-        combined_wiekszosciowa = np.vstack((X_0, y_0)).T
-        combined_wiekszosciowa_2 = []
-        for x in combined_wiekszosciowa:
-            x = list(x)
-            combined_wiekszosciowa_2.append(x)
-        print(len(combined_wiekszosciowa_2))
+        # for label, _ in counter.items():
+        #     row_ix = where(y_samples == 1)[0]  # CHECK
+        #     X_0, y_0 = (X[row_ix, 0], X[row_ix, 1])
+        # combined_wiekszosciowa = np.vstack((X_0, y_0)).T
+        # combined_wiekszosciowa_2 = []
+        # for x in combined_wiekszosciowa:
+        #     x = list(x)
+        #     combined_wiekszosciowa_2.append(x)
+        # print(len(combined_wiekszosciowa_2))
+
+        #pobranie probek klasy wiekszosciowej
+        wiekszosciowa_counter = Counter(y_samples).most_common()[0]
+        self.wiekszosciowa_class_name = wiekszosciowa_counter[0]
+        self.wiekszosciowa_number = wiekszosciowa_counter[1]
+        indexes = np.where(y_samples == self.wiekszosciowa_class_name)
+        combined_wiekszosciowa_2 = x_samples[indexes]
 
         # polaczenie probek klasy wiekszosciowej i mniejszciowej
-        for x in self.klasa_mniejszosciowa:
-            combined_wiekszosciowa_2.append(x)
-        calosc = combined_wiekszosciowa_2
-        calosc = np.array(calosc)
+        # for x in self.klasa_mniejszosciowa:
+        #     np.append(combined_wiekszosciowa_2, x)
+        # calosc = combined_wiekszosciowa_2
+        # calosc = np.array(calosc)
+        self.klasa_mniejszosciowa = np.array(self.klasa_mniejszosciowa)
+        calosc = np.concatenate((combined_wiekszosciowa_2, self.klasa_mniejszosciowa))
         self.klasa_mniejszosciowa=np.array(self.klasa_mniejszosciowa)
 
         # tworzenie etykietyzacji dla calego zbioru
@@ -151,7 +160,7 @@ class OwnSMOTE:
 
 
 
-X, y = datasets.make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, random_state=1410,
+X, y = datasets.make_classification(n_samples=1000, n_features=4, n_informative=4, n_redundant=0, random_state=1410,
                                     weights=[0.01, 0.99])
 print(Counter(y))
 counter = Counter(y)
