@@ -29,6 +29,13 @@ clfs = {
 }
 
 class OwnSMOTE:
+
+    def __repr__(self):
+        return self.__class__.__name__
+
+    def __set_name__(self, owner, name):
+        return "OwnSmote"
+
     def __init__(self, amount=100, k_neighbors=5, random_state=None):
         self.x_miniority_set = None
         self.y_miniority_set = None
