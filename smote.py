@@ -145,13 +145,3 @@ class OwnSMOTE:
             N -= 1
 
 
-
-b = OwnSMOTE(amount=99)
-X, y = datasets.make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, random_state=1410,
-                                    weights=[0.01, 0.99])
-b.fit_resample(X,y)
-
-
-
-
-
