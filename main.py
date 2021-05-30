@@ -1,5 +1,6 @@
 from collections import Counter
 
+import pandas
 from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler
 from imblearn.under_sampling import NearMiss, RandomUnderSampler
 from sklearn import datasets, clone
@@ -8,8 +9,10 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from smote import OwnSMOTE
 
 # X, y = datasets.make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, random_state=1410,
 #                                     weights=[0.99, 0.01])
@@ -18,8 +21,16 @@ from sklearn.tree import DecisionTreeClassifier
 
 syntetic_dataset = np.genfromtxt("syntetic_dataset.csv", delimiter=",")
 
-X = syntetic_dataset[:, :-1]
-y = syntetic_dataset[:, -1].astype(int)
+X_syntetic = syntetic_dataset[:, :-1]
+y_syntetic = syntetic_dataset[:, -1].astype(int)
+
+dataset = pandas.read_csv("dane.csv", header=None)
+dataset = dataset.values
+X, y = dataset[:, :-1], dataset[:, -1]
+counter1 = Counter(y)
+y = LabelEncoder().fit_transform(y)
+
+
 
 clfs = {
     'GNB': GaussianNB(),
@@ -50,7 +61,13 @@ def make_prediction(X_set, y_set, samplingobject):
     for clf_id, clf_name in enumerate(clfs):
         print("%s: %.3f (%.2f)" % (clf_name, mean[clf_id], std[clf_id]))
 
+make_prediction(X_syntetic, y_syntetic, OwnSMOTE())
+make_prediction(X_syntetic, y_syntetic, SMOTE())
+make_prediction(X_syntetic, y_syntetic, ADASYN())
+make_prediction(X_syntetic, y_syntetic, RandomOverSampler(sampling_strategy=0.5))
+make_prediction(X_syntetic, y_syntetic, RandomUnderSampler(sampling_strategy=0.5))
 
+make_prediction(X_syntetic, y_syntetic, OwnSMOTE())
 make_prediction(X, y, SMOTE())
 make_prediction(X, y, ADASYN())
 make_prediction(X, y, RandomOverSampler(sampling_strategy=0.5))
