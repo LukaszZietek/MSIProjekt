@@ -70,13 +70,13 @@ class OwnSMOTE:
             np.random.seed(random_state)
 
     def _randomize(self):
-        output_size = int(self.amount / 100 * self.miniority_number)  # Nie wiem czy tutaj jest git, nie jestem pewien
+        output_size = int(self.amount / 100 * self.miniority_number)
         random_indexes = np.random.randint(self.miniority_number, size=output_size)
         x_sets = self.x_miniority_set[random_indexes, :]
         y_sets = self.y_miniority_set[random_indexes]
         return x_sets, y_sets
 
-    def fit_resample(self, x_samples, y_samples, merge=False):
+    def fit_resample(self, x_samples, y_samples):
         indexes = 0
         if type(x_samples) != np.ndarray or type(y_samples) != np.ndarray:
             raise TypeError('X_set or y_set passed to the fit_resample function should be ndarray')
@@ -92,7 +92,7 @@ class OwnSMOTE:
             self.x_miniority_set = x_samples[indexes]
 
         if self.amount < 100:
-            #self.x_miniority_set, self.y_miniority_set = self._randomize()
+            self.x_miniority_set, self.y_miniority_set = self._randomize()
             self.T = (self.amount / 100) * self.T
             self.amount = 100
         self.amount= int(self.amount/100)+1
@@ -104,34 +104,31 @@ class OwnSMOTE:
             self.populate(self.amount, i, nn_array)
 
         #tworzenie zbioru klasy mniejszosciowej
-        print(len(self.synthetic))
-        self.klasa_mniejszosciowa=self.synthetic
-        print(Counter(y_samples)[1])
-        for x in range(len(self.klasa_mniejszosciowa) - Counter(y_samples)[1]):
-            self.klasa_mniejszosciowa.pop()
+        self.miniority_class = self.synthetic
+        for x in range(len(self.miniority_class) - Counter(y_samples)[1]):
+            self.miniority_class.pop()
 
-        # summarize class distribution
         counter = Counter(y_samples)
 
         #pobranie probek klasy wiekszosciowej
-        wiekszosciowa_counter = Counter(y_samples).most_common()[0]
-        self.wiekszosciowa_class_name = wiekszosciowa_counter[0]
-        self.wiekszosciowa_number = wiekszosciowa_counter[1]
-        indexes = np.where(y_samples == self.wiekszosciowa_class_name)
-        combined_wiekszosciowa_2 = x_samples[indexes]
+        majority_counter = Counter(y_samples).most_common()[0]
+        self.majority_class_name = majority_counter[0]
+        self.majority_number = majority_counter[1]
+        indexes = np.where(y_samples == self.majority_class_name)
+        combined_majority_subset = x_samples[indexes]
 
-        self.klasa_mniejszosciowa = np.array(self.klasa_mniejszosciowa)
-        calosc = np.concatenate((combined_wiekszosciowa_2, self.klasa_mniejszosciowa))
-        self.klasa_mniejszosciowa = np.array(self.klasa_mniejszosciowa)
+        self.miniority_class = np.array(self.miniority_class)
+        full_set = np.concatenate((combined_majority_subset, self.miniority_class))
+        self.miniority_class = np.array(self.miniority_class)
 
         # tworzenie etykietyzacji dla calego zbioru
-        y_test = list(repeat(1, int(len(self.klasa_mniejszosciowa))))
-        y_test = y_test + list(repeat(0, int(len(self.klasa_mniejszosciowa))))
+        y_test = list(repeat(1, int(len(self.miniority_class))))
+        y_test = y_test + list(repeat(0, int(len(self.miniority_class))))
         for x in y_test:
             x = int(x)
         y_test = np.array(y_test)
 
-        return calosc, y_test
+        return full_set, y_test
 
     def compute_k_nearest(self, i):
         nn_array = self.neighbors.kneighbors([self.x_miniority_set[i]], self.k_neighbors, return_distance=False)
