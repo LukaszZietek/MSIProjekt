@@ -1,3 +1,4 @@
+import warnings
 from collections import Counter
 from math import pi
 
@@ -19,9 +20,11 @@ from strlearn.metrics import recall, precision, specificity, f1_score, geometric
 
 from smote import OwnSMOTE
 
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
 X_syntetic, y_syntetic = datasets.make_classification(n_samples=1000, n_features=4, n_informative=4, n_redundant=0,
                                                       random_state=1410,
-                                                      weights=[0.01, 0.99])
+                                                      weights=[0.99, 0.01])
 
 df = pandas.concat([pandas.DataFrame(X_syntetic), pandas.DataFrame(y_syntetic)], axis=1)
 df.to_csv('syntetic_dataset.csv', index=False, encoding='utf-8')
@@ -79,7 +82,6 @@ def make_prediction(X_set, y_set, samplingobject, savefile_name="OwnSMOTE-synthe
             clf = clone(clfs[clf_name])
             clf.fit(X_set[train], y_set[train])
             y_pred = clf.predict(X_set[test])
-            scores[clf_id, fold_id] = accuracy_score(y_set[test], y_pred)
 
             for metric_id, metric in enumerate(metrics):
                 scores[clf_id, fold_id, metric_id] = metrics[metric](y_set[test], y_pred)
@@ -109,7 +111,6 @@ def make_prediction_without_algorithms(X_set, y_set, savefile_name="None-synthet
             clf = clone(clfs[clf_name])
             clf.fit(X_set[train], y_set[train])
             y_pred = clf.predict(X_set[test])
-            scores[clf_id, fold_id] = accuracy_score(y_set[test], y_pred)
 
             for metric_id, metric in enumerate(metrics):
                 scores[clf_id, fold_id, metric_id] = metrics[metric](y_set[test], y_pred)
@@ -156,8 +157,8 @@ def print_radio_plot(files_name):
     pyplot.show()
 
 
-Ns = Counter(y_syntetic)
-Ns = Ns[1] / Ns[0]
+Ns = Counter(y_syntetic).most_common()
+Ns = Ns[0][1] / Ns[-1][1]
 output_file_name = ["None-synthetic", "OwnSMOTE-synthetic", "SMOTE-synthetic", "ADASYN-synthetic",
                     "ROS-synthetic", "RUS-synthetic"]
 make_prediction_without_algorithms(X_syntetic, y_syntetic, output_file_name[0])
@@ -170,8 +171,8 @@ print_radio_plot(output_file_name)
 
 output_file_name = ["None-realistic", "OwnSMOTE-realistic", "SMOTE-realistic", "ADASYN-realistic",
                     "ROS-realistic", "RUS-realistic"]
-N = Counter(y)
-N = N[1] / N[0]
+N = Counter(y).most_common()
+N = N[0][1] / N[-1][1]
 make_prediction_without_algorithms(X, y, output_file_name[0])
 make_prediction(X, y, OwnSMOTE(N), output_file_name[1], "OwnSMOTE")
 make_prediction(X, y, SMOTE(), output_file_name[2], "SMOTE")

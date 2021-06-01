@@ -104,16 +104,14 @@ class OwnSMOTE:
             self.populate(self.amount, i, nn_array)
 
         #tworzenie zbioru klasy mniejszosciowej
+        majority_counter = Counter(y_samples).most_common()[0]
+        self.majority_number = majority_counter[1]
         self.miniority_class = self.synthetic
-        for x in range(len(self.miniority_class) - Counter(y_samples)[1]):
+        for x in range(len(self.miniority_class) - self.majority_number):
             self.miniority_class.pop()
 
-        counter = Counter(y_samples)
-
         #pobranie probek klasy wiekszosciowej
-        majority_counter = Counter(y_samples).most_common()[0]
         self.majority_class_name = majority_counter[0]
-        self.majority_number = majority_counter[1]
         indexes = np.where(y_samples == self.majority_class_name)
         combined_majority_subset = x_samples[indexes]
 
