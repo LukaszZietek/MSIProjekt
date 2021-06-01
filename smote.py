@@ -120,8 +120,8 @@ class OwnSMOTE:
         self.miniority_class = np.array(self.miniority_class)
 
         # tworzenie etykietyzacji dla calego zbioru
-        y_test = list(repeat(1, int(len(self.miniority_class))))
-        y_test = y_test + list(repeat(0, int(len(self.miniority_class))))
+        y_test = list(repeat(0, int(len(self.miniority_class))))
+        y_test = y_test + list(repeat(1, int(len(self.miniority_class))))
         for x in y_test:
             x = int(x)
         y_test = np.array(y_test)
