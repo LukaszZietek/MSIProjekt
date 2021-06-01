@@ -125,6 +125,8 @@ def print_radio_plot(files_name):
         all_scores[i] = scores_from_file
 
     all_scores = np.mean(all_scores, axis=1).T
+    b=pandas.DataFrame(all_scores, index=['Recall', 'Precision', 'Specifity','F1','G-mean', 'BAC'], columns=['None','OwnSMOTE', 'SMOTE','ADASYN','ROS','RUS'])
+    print(b)
     metrics_name = ["Recall", 'Precision', 'Specificity', 'F1', 'G-mean', 'BAC']
 
     number = all_scores.shape[0]
